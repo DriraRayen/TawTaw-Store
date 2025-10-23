@@ -7,8 +7,8 @@ session_start();
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="..\css\style.css">
-    <link rel="stylesheet" href="..\css\button.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/button.css">
     <title>TawTaw\home</title>
 </head>
 
@@ -64,17 +64,17 @@ session_start();
         <hr class="hr">
         <div class="container">
             <div class="why-card">
-                <img src="..\Images\Icons\fast-delivery.png" alt="van icon">
+                <img src="../Images/Icons/fast-delivery.png" alt="van icon">
                 <h3>Fast delivery</h3>
                 <p>swift delivery for your immediate satisfaction</p>
             </div>
             <div class="why-card">
-                <img src="..\Images\Icons\free.png" alt="coin icon that says free">
+                <img src="../Images/Icons/free.png" alt="coin icon that says free">
                 <h3>Free shipping</h3>
                 <p>enjoy cost free shipping on all orders</p>
             </div>
             <div class="why-card">
-                <img src="..\Images\Icons\Medal.png" alt="achievement icon">
+                <img src="../Images/Icons/Medal.png" alt="achievement icon">
                 <h3>Best Quality</h3>
                 <p>top-tier quality you can always trust</p>
             </div>
@@ -92,7 +92,7 @@ session_start();
                 </svg>
             </div>
             <div class="product-wrapper" id="product-wrapper">
-                <?php include '../php/product-cards.php'; ?>
+                <?php include __DIR__ . '/../php/product-cards.php'; ?>
             </div>
             <div class="arrow-right arrow" id="#product-carousel-right">
                 <svg xmlns="http://www.w3.org/2000/svg" width="3.5em" height="3.5em" viewBox="0 0 1024 1024">
@@ -117,7 +117,7 @@ session_start();
             <div class="product-wrapper" id="product-wrapper">
                 <?php
                 $category = 'laptop';
-                include '../php/product-cards.php'; ?>
+                include __DIR__ . '/../php/product-cards.php'; ?>
             </div>
             <div class="arrow-right arrow" id="#product-carousel-right">
                 <svg xmlns="http://www.w3.org/2000/svg" width="3.5em" height="3.5em" viewBox="0 0 1024 1024">
@@ -132,19 +132,19 @@ session_start();
     <footer>
         <div>
             <h4>you can find us on</h4>
-            <div><img src="..\Images\Icons\facebook.png" class="pointer" alt="Facebook logo">
+            <div><img src="../Images/Icons/facebook.png" class="pointer" alt="Facebook logo">
                 <a>Facebook.com</a>
             </div>
-            <div><img src="..\Images\Icons\instagram.png" alt="Instagram logo" class="pointer">
+            <div><img src="../Images/Icons/instagram.png" alt="Instagram logo" class="pointer">
                 <a>Instagram.com</a>
             </div>
-            <div><img src="..\Images\Icons\mail.png" alt="email logo" class="pointer">
+            <div><img src="../Images/Icons/mail.png" alt="email logo" class="pointer">
                 <a>email@domaine.com</a>
             </div>
-            <div><img src="..\Images\Icons\telephone-call.png" alt="Number logo" class="pointer">
+            <div><img src="../Images/Icons/telephone-call.png" alt="Number logo" class="pointer">
                 <a>Number</a>
             </div>
-            <div><img src="..\Images\Icons\gps-navigation.png" alt="location logo" class="pointer">
+            <div><img src="../Images/Icons/gps-navigation.png" alt="location logo" class="pointer">
                 <a>Address of the store</a>
             </div>
         </div>

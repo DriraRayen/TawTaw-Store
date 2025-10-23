@@ -1,0 +1,31 @@
+# Ignore local PHP credentials and exported SQL dumps
+php/connexion.php
+/db/*.sql
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/editor
+.vscode/
+.idea/
+
+# Node / Python / other deps
+node_modules/
+.env
+
+# Build artifacts
+dist/
+build/
+
+# Logs
+*.log
+
+# Composer
+vendor/
+
+# Mac/Linux swap
+*~
+
+# Images that may be large / local (optional)
+#Images/
