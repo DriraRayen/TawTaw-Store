@@ -177,7 +177,8 @@ This project is open source and available for educational purposes.
 
 **Rayen Drira**  
 Computer Engineering Student | Exploring IoT & Cybersecurity | Scout Leader 🏕️
-[GitHub Profile](https://github.com/RayenDrira)
+[GitHub Profile](https://github.com/DriraRayen)
+[Linkedin Profile](https://linkedin.com/in/drirarayen)
 
 ---
 
