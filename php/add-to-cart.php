@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../php/connexion.php';
+include 'connexion.php';
 
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'User not logged in.']);
@@ -10,52 +10,119 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 $data = json_decode(file_get_contents('php://input'), true);
-if (!isset($data['variation_id'])) {
+if (!is_array($data) || !isset($data['variation_id'])) {
     echo json_encode(['success' => false, 'message' => 'Variation ID is required.']);
     exit;
 }
 
-$variation_id = intval($data['variation_id']);
+$variation_id = (int) $data['variation_id'];
+$quantity = isset($data['quantity']) ? (int) $data['quantity'] : 1;
+$mode = isset($data['mode']) && $data['mode'] === 'set' ? 'set' : 'increment';
 
-$sql = "SELECT * FROM product_variation WHERE variation_id = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param('i', $variation_id);
-$stmt->execute();
-$result = $stmt->get_result();
+if ($variation_id <= 0) {
+    echo json_encode(['success' => false, 'message' => 'Invalid variation selection.']);
+    exit;
+}
 
-if ($result->num_rows === 0) {
+if ($quantity <= 0) {
+    $quantity = 1;
+}
+
+$productSql = "SELECT quantity FROM product_variation WHERE variation_id = ?";
+$productStmt = $conn->prepare($productSql);
+if (!$productStmt) {
+    echo json_encode(['success' => false, 'message' => 'Unable to prepare product lookup.']);
+    exit;
+}
+
+$productStmt->bind_param('i', $variation_id);
+$productStmt->execute();
+$productStmt->bind_result($availableStock);
+
+if (!$productStmt->fetch()) {
+    $productStmt->close();
+    $conn->close();
     echo json_encode(['success' => false, 'message' => 'Invalid variation ID.']);
     exit;
 }
 
-$sql = "SELECT * FROM cart WHERE user_id = ? AND variation_id = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param('ii', $user_id, $variation_id);
-$stmt->execute();
-$result = $stmt->get_result();
+$productStmt->close();
 
-if ($result->num_rows > 0) {
-    $sql = "UPDATE cart SET quantity = quantity + 1 WHERE user_id = ? AND variation_id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('ii', $user_id, $variation_id);
+if ($availableStock <= 0) {
+    $conn->close();
+    echo json_encode(['success' => false, 'message' => 'This item is currently out of stock.']);
+    exit;
+}
 
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'message' => 'Cart updated successfully.']);
+$quantity = min($quantity, (int) $availableStock);
+
+$cartSql = "SELECT quantity FROM cart WHERE user_id = ? AND variation_id = ?";
+$cartStmt = $conn->prepare($cartSql);
+$cartStmt->bind_param('ii', $user_id, $variation_id);
+$cartStmt->execute();
+$cartResult = $cartStmt->get_result();
+$existingQuantity = 0;
+
+if ($cartRow = $cartResult->fetch_assoc()) {
+    $existingQuantity = (int) $cartRow['quantity'];
+}
+
+$cartStmt->close();
+
+$success = false;
+
+if ($mode === 'set') {
+    $newQuantity = $quantity;
+    if ($existingQuantity > 0) {
+        $updateSql = "UPDATE cart SET quantity = ? WHERE user_id = ? AND variation_id = ?";
+        $updateStmt = $conn->prepare($updateSql);
+        if ($updateStmt) {
+            $updateStmt->bind_param('iii', $newQuantity, $user_id, $variation_id);
+            $success = $updateStmt->execute();
+            $updateStmt->close();
+        }
     } else {
-        echo json_encode(['success' => false, 'message' => 'Failed to update cart.']);
+        $insertSql = "INSERT INTO cart (user_id, variation_id, quantity) VALUES (?, ?, ?)";
+        $insertStmt = $conn->prepare($insertSql);
+        if ($insertStmt) {
+            $insertStmt->bind_param('iii', $user_id, $variation_id, $newQuantity);
+            $success = $insertStmt->execute();
+            $insertStmt->close();
+        }
     }
 } else {
-    $sql = "INSERT INTO cart (user_id, variation_id, quantity) VALUES (?, ?, 1)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('ii', $user_id, $variation_id);
+    $newQuantity = $existingQuantity + $quantity;
+    $newQuantity = min($newQuantity, (int) $availableStock);
 
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'message' => 'Item added to cart successfully.']);
+    if ($existingQuantity > 0) {
+        $updateSql = "UPDATE cart SET quantity = ? WHERE user_id = ? AND variation_id = ?";
+        $updateStmt = $conn->prepare($updateSql);
+        if ($updateStmt) {
+            $updateStmt->bind_param('iii', $newQuantity, $user_id, $variation_id);
+            $success = $updateStmt->execute();
+            $updateStmt->close();
+        }
     } else {
-        echo json_encode(['success' => false, 'message' => 'Failed to add item to cart.']);
+        $insertSql = "INSERT INTO cart (user_id, variation_id, quantity) VALUES (?, ?, ?)";
+        $insertStmt = $conn->prepare($insertSql);
+        if ($insertStmt) {
+            $insertStmt->bind_param('iii', $user_id, $variation_id, $newQuantity);
+            $success = $insertStmt->execute();
+            $insertStmt->close();
+        }
     }
 }
 
-$stmt->close();
 $conn->close();
+
+if (!$success) {
+    echo json_encode(['success' => false, 'message' => 'Failed to update cart.']);
+    exit;
+}
+
+echo json_encode([
+    'success' => true,
+    'message' => $mode === 'set' ? 'Cart updated successfully.' : 'Item added to cart successfully.',
+    'quantity' => $newQuantity,
+]);
 ?>

@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../php/connexion.php';
+include 'connexion.php';
 
 
 if (!isset($_SESSION['user_id'])) {

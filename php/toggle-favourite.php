@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../php/connexion.php';
+include 'connexion.php';
 
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'User not logged in.']);

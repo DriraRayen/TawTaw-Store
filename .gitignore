@@ -1,31 +1,58 @@
-# Ignore local PHP credentials and exported SQL dumps
+# Database connection files
 php/connexion.php
-/db/*.sql
 
-# OS files
+# Database dumps
+db/*.sql
+
+# Log files
+logs/
+*.log
+
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+Desktop.ini
 
-# IDE/editor
+# IDE and editor files
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
 
-# Node / Python / other deps
-node_modules/
+# Environment variables
 .env
+.env.local
+.env.*.local
+
+# Dependency directories
+node_modules/
+vendor/
 
 # Build artifacts
 dist/
 build/
 
-# Logs
-*.log
+# Session files
+sessions/
+tmp/
 
-# Composer
-vendor/
+# User uploaded files (optional - uncomment if you don't want to track uploads)
+# Images/Products/
+# Images/uploads/
 
-# Mac/Linux swap
+# Cache files
+cache/
+*.cache
+
+# Backup files
+*.bak
+*.backup
 *~
-
-# Images that may be large / local (optional)
-#Images/

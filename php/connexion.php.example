@@ -1,0 +1,20 @@
+<?php
+// Database connection configuration
+// Copy this file to connexion.php and update with your credentials
+
+$servername = "localhost";        // Database server (usually localhost)
+$username = "root";               // Your MySQL username (default: root)
+$password = "";                   // Your MySQL password (default: empty)
+$dbname = "tawtaw_store";         // Your database name
+
+// Create mysqli connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Set charset to utf8mb4 for better character support
+$conn->set_charset("utf8mb4");
+?>

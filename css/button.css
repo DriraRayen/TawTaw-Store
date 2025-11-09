@@ -1,117 +1,130 @@
 /* button */
 html {
-  font-size: 16px;
+   font-size: 16px;
 }
 .btx-add {
-  padding: 5px 15px;
-  font-size: 1.1em;
-  font-weight: 350;
-  text-transform: capitalize;
-  border-radius: 20px;
-  color: white;
-  background-color: #31c1e1;
-  border: none;
-  cursor: pointer;
+   padding: 0.65em 1.5em;
+   font-size: 1em;
+   font-weight: 600;
+   text-transform: capitalize;
+   border-radius: 12px;
+   color: white;
+   background-color: #31c1e1;
+   border: none;
+   cursor: pointer;
+   transition: all 0.3s ease;
+   white-space: nowrap;
 }
 .btx-add:hover {
-  transform: scale(1.05);
+   transform: scale(1.05);
+   background-color: #2bb0ca;
+   box-shadow: 0 4px 12px rgba(49, 193, 225, 0.4);
+}
+.btx-add:disabled {
+   background-color: #999;
+   cursor: not-allowed;
+   opacity: 0.6;
+}
+.btx-add:disabled:hover {
+   transform: none;
+   box-shadow: none;
 }
 .btx-red {
-  padding: 5px 41px;
-  font-weight: 400;
-  font-size: 1.1em;
-  text-transform: capitalize;
-  border-radius: 20px;
-  color: white;
-  background-color: #ff2330;
-  border: 2px solid #ff2330;
-  cursor: pointer;
+   padding: 5px 41px;
+   font-weight: 400;
+   font-size: 1.1em;
+   text-transform: capitalize;
+   border-radius: 20px;
+   color: white;
+   background-color: #ff2330;
+   border: 2px solid #ff2330;
+   cursor: pointer;
 }
 .btx-blue-reverse {
-  padding: 5px 41px;
-  font-weight: 400;
-  font-size: 1.1em;
-  text-transform: capitalize;
-  border-radius: 20px;
-  color: white;
-  background-color: #31c1e1;
-  border: 2px solid #31c1e1;
-  cursor: pointer;
+   padding: 5px 41px;
+   font-weight: 400;
+   font-size: 1.1em;
+   text-transform: capitalize;
+   border-radius: 20px;
+   color: white;
+   background-color: #31c1e1;
+   border: 2px solid #31c1e1;
+   cursor: pointer;
 }
 .btx-blue {
-  width: 165px;
-  height: 65px;
-  padding: 16px 29px;
-  font-size: 1.1em;
-  text-transform: capitalize;
-  border-radius: 20px;
-  color: #31c1e1;
-  background-color: #ff233200;
-  border: 2px solid #31c1e1;
-  cursor: pointer;
+   width: 165px;
+   height: 65px;
+   padding: 16px 29px;
+   font-size: 1.1em;
+   text-transform: capitalize;
+   border-radius: 20px;
+   color: #31c1e1;
+   background-color: #ff233200;
+   border: 2px solid #31c1e1;
+   cursor: pointer;
 }
 .btx-grey {
-  width: 165px;
-  height: 65px;
-  padding: 16px 29px;
-  font-size: 1.1em;
-  text-transform: capitalize;
-  border-radius: 20px;
-  color: #c3c3c3;
-  background-color: #ff233200;
-  border: 2px solid #c3c3c3;
-  cursor: pointer;
+   width: 165px;
+   height: 65px;
+   padding: 16px 29px;
+   font-size: 1.1em;
+   text-transform: capitalize;
+   border-radius: 20px;
+   color: #c3c3c3;
+   background-color: #ff233200;
+   border: 2px solid #c3c3c3;
+   cursor: pointer;
 }
 .btx-blue-reverse {
-  padding: 5px 41px;
-  font-weight: 400;
-  font-size: 1.1em;
-  text-transform: capitalize;
-  border-radius: 20px;
-  color: white;
-  background-color: #31c1e1;
-  border: 2px solid #31c1e1;
-  cursor: pointer;
+   padding: 5px 41px;
+   font-weight: 400;
+   font-size: 1.1em;
+   text-transform: capitalize;
+   border-radius: 20px;
+   color: white;
+   background-color: #31c1e1;
+   border: 2px solid #31c1e1;
+   cursor: pointer;
 }
 .Hero .btx-red,
 .today .btx-red,
 .trending .btx-red,
 .gaming .btx-red,
 .btx-blue {
-  text-transform: uppercase;
-  font-weight: 600;
-  padding: 16px 24px;
-  width: 165px;
-  height: 65px;
-  letter-spacing: 1px;
+   text-transform: uppercase;
+   font-weight: 600;
+   padding: 16px 24px;
+   width: 165px;
+   height: 65px;
+   letter-spacing: 1px;
 }
 .today .btx-red,
 .trending .btx-red,
 .gaming .btx-red {
-  padding: 16px 20px;
-  height: 57px;
-  width: 165px;
+   padding: 16px 20px;
+   height: 57px;
+   width: 165px;
 }
 .btx-grey {
-  height: 2.5em;
-  padding: 0;
-  width: 15em;
+   height: 2.5em;
+   padding: 0;
+   width: 15em;
 }
 .btx-red-reverse {
-  padding: 5px 41px;
-  font-size: 1.1em;
-  font-weight: 350;
-  text-transform: capitalize;
-  border-radius: 20px;
-  color: #ff2330;
-  background-color: hsla(0, 0%, 0%, 0);
-  border: 2px solid #ff2330;
-  cursor: pointer;
+   padding: 5px 41px;
+   font-size: 1.1em;
+   font-weight: 350;
+   text-transform: capitalize;
+   border-radius: 20px;
+   color: #ff2330;
+   background-color: hsla(0, 0%, 0%, 0);
+   border: 2px solid #ff2330;
+   cursor: pointer;
 }
 .glassy-card .btx-red,
 .glassy-card .btx-blue-reverse,
 .btx-grey {
-  border-radius: 10px;
+   border-radius: 10px;
 }
 /*button animations*/
 
@@ -120,83 +133,124 @@ html {
 .btx-grey,
 .btx-red-reverse,
 .btx-blue-reverse {
-  transition: 0.8s;
-  position: relative;
-  overflow: hidden;
-  z-index: 100;
-  background: none;
+   transition: 0.8s;
+   position: relative;
+   overflow: hidden;
+   z-index: 100;
+   background: none;
 }
 
 .btx-red-reverse:hover,
 .btx-blue:hover,
 .btx-grey:hover {
-  color: #fff;
+   color: #fff;
 }
 .btx-red:hover {
-  color: #ff2330;
+   color: #ff2330;
 }
 .btx-grey:hover {
-  color: black;
+   color: black;
 }
 .btx-blue-reverse:hover {
-  color: #31c1e1;
+   color: #31c1e1;
 }
 .btx-red::before,
 .btx-red-reverse::before,
 .btx-blue::before,
 .btx-blue-reverse::before,
 .btx-grey::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  z-index: -1;
-  top: 0;
-  border-radius: 0 0 50% 50%;
-  transition: 0.8s;
+   content: "";
+   position: absolute;
+   left: 0;
+   z-index: -1;
+   top: 0;
+   border-radius: 0 0 50% 50%;
+   transition: 0.8s;
 }
 .btx-red::before {
-  width: 200%;
-  height: 180%;
-  background: #ff2330;
+   width: 200%;
+   height: 180%;
+   background: #ff2330;
 }
 .btx-blue::before {
-  height: 0%;
-  width: 100%;
-  background: #31c1e1;
+   height: 0%;
+   width: 100%;
+   background: #31c1e1;
 }
 .btx-red-reverse::before {
-  height: 0%;
-  width: 100%;
-  background: #ff2330;
+   height: 0%;
+   width: 100%;
+   background: #ff2330;
 }
 .btx-blue-reverse::before {
-  height: 180%;
-  width: 200%;
-  background: #31c1e1;
+   height: 180%;
+   width: 200%;
+   background: #31c1e1;
 }
 .btx-grey::before {
-  height: 0%;
-  width: 100%;
-  background: #c3c3c3;
+   height: 0%;
+   width: 100%;
+   background: #c3c3c3;
 }
 .btx-red:hover::before {
-  height: 0%;
+   height: 0%;
 }
 .btx-blue:hover::before {
-  width: 100%;
-  height: 180%;
+   width: 100%;
+   height: 180%;
 }
 .btx-red-reverse:hover::before {
-  width: 100%;
-  height: 180%;
+   width: 100%;
+   height: 180%;
 }
 .btx-blue-reverse:hover::before {
-  height: 0%;
+   height: 0%;
 }
 .btx-grey:hover::before {
-  width: 100%;
-  height: 180%;
+   width: 100%;
+   height: 180%;
 }
 .btx-buy:hover {
-  height: 106%;
+   height: 106%;
+}
+
+/* responsive adjustments */
+
+@media (max-width: 768px) {
+   .Hero .btx-red,
+   .today .btx-red,
+   .trending .btx-red,
+   .gaming .btx-red,
+   .btx-blue,
+   .btx-grey,
+   .btx-red-reverse,
+   .btx-blue-reverse {
+      width: 100%;
+      max-width: 16em;
+      height: auto;
+      padding: 14px 18px;
+   }
+
+   .btx-blue,
+   .btx-grey {
+      min-height: 3.2em;
+   }
+}
+
+@media (max-width: 576px) {
+   .Hero .btx-red,
+   .today .btx-red,
+   .trending .btx-red,
+   .gaming .btx-red {
+      max-width: 100%;
+   }
+
+   .btx-red,
+   .btx-red-reverse,
+   .btx-blue,
+   .btx-blue-reverse,
+   .btx-grey {
+      font-size: 1em;
+      letter-spacing: 0.5px;
+   }
 }

@@ -1,48 +1,149 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const wrapper = document.querySelector(".product-wrapper"); // The container holding the product cards
-  const rightArrow = document.querySelector(".arrow-right"); // Right arrow button
-  const leftArrow = document.querySelector(".arrow-left"); // Left arrow button
+document.addEventListener("DOMContentLoaded", () => {
+   const carousels = document.querySelectorAll(".product-carousel");
 
-  let currentIndex = 0; // Index of the first visible product
-  const visibleCount = 3; // Number of visible products at a time
-  const totalProducts = wrapper.children.length; // Total number of products
+   carousels.forEach((carousel) => {
+      const wrapper = carousel.querySelector(".product-wrapper");
+      const rightArrow = carousel.querySelector(".arrow-right");
+      const leftArrow = carousel.querySelector(".arrow-left");
+      const MAX_VISIBLE_DESKTOP = 3;
+      const cards = wrapper
+         ? Array.from(wrapper.querySelectorAll(".product-card"))
+         : [];
 
-  // Function to handle scrolling to the right
-  function scrollRight() {
-    if (currentIndex + visibleCount < totalProducts) {
-      // Hide the far-left product
-      wrapper.children[currentIndex].style.display = "none";
+      if (!wrapper || !rightArrow || !leftArrow || cards.length === 0) {
+         return;
+      }
 
-      // Show the next product that was not initially visible
-      wrapper.children[currentIndex + visibleCount].style.display = "flex";
+      let currentIndex = 0;
+      let visibleCount = Math.min(MAX_VISIBLE_DESKTOP, cards.length);
 
-      // Update the index of the first visible product
-      currentIndex++;
-    }
-  }
+      const isTouchLayout = () =>
+         window.matchMedia("(max-width: 768px)").matches;
 
-  // Function to handle scrolling to the left
-  function scrollLeft() {
-    if (currentIndex > 0) {
-      // Hide the far-right product
-      wrapper.children[currentIndex + visibleCount - 1].style.display = "none";
+      const readGap = () => {
+         const styles = window.getComputedStyle(wrapper);
+         const gapValue = styles.columnGap || styles.gap || "0";
+         return parseFloat(gapValue) || 0;
+      };
 
-      // Show the previous product that was hidden
-      wrapper.children[currentIndex - 1].style.display = "flex";
+      const measureCardWidth = () => {
+         const measuringCard =
+            cards.find((card) => card.style.display !== "none") || cards[0];
+         if (!measuringCard) {
+            return 0;
+         }
 
-      // Update the index of the first visible product
-      currentIndex--;
-    }
-  }
+         let restoreDisplay = null;
+         if (measuringCard.style.display === "none") {
+            restoreDisplay = measuringCard.style.display;
+            measuringCard.style.display = "flex";
+         }
 
-  // Attach the scroll functions to the arrow buttons
-  rightArrow.addEventListener("click", scrollRight);
-  leftArrow.addEventListener("click", scrollLeft);
+         const width = measuringCard.getBoundingClientRect().width;
 
-  // Initialize the product visibility
-  Array.from(wrapper.children).forEach((card, index) => {
-    if (index >= visibleCount) {
-      card.style.display = "none"; // Hide all products except the first three
-    }
-  });
+         if (restoreDisplay !== null) {
+            measuringCard.style.display = restoreDisplay;
+         }
+
+         return width;
+      };
+
+      const computeVisibleCount = () => {
+         const carouselWidth = carousel.getBoundingClientRect().width;
+         const wrapperWidth = wrapper.getBoundingClientRect().width;
+         const arrowsWidth =
+            leftArrow.getBoundingClientRect().width +
+            rightArrow.getBoundingClientRect().width;
+         const gap = readGap();
+         const availableWidth = Math.max(
+            wrapperWidth,
+            carouselWidth - arrowsWidth - gap
+         );
+
+         const cardWidth = measureCardWidth();
+
+         if (cardWidth <= 0 || availableWidth <= 0) {
+            return 1;
+         }
+
+         const count = Math.floor((availableWidth + gap) / (cardWidth + gap));
+         return Math.max(1, Math.min(cards.length, MAX_VISIBLE_DESKTOP, count));
+      };
+
+      const getMaxIndex = () => Math.max(0, cards.length - visibleCount);
+
+      const applyTouchLayout = () => {
+         cards.forEach((card) => {
+            card.style.display = "flex";
+         });
+         leftArrow.classList.add("arrow-disabled");
+         rightArrow.classList.add("arrow-disabled");
+      };
+
+      const applyDesktopLayout = () => {
+         visibleCount = computeVisibleCount();
+         const maxIndex = getMaxIndex();
+         currentIndex = Math.min(currentIndex, maxIndex);
+
+         cards.forEach((card, index) => {
+            const shouldShow =
+               index >= currentIndex && index < currentIndex + visibleCount;
+            card.style.display = shouldShow ? "flex" : "none";
+         });
+
+         leftArrow.classList.toggle("arrow-disabled", currentIndex === 0);
+         rightArrow.classList.toggle(
+            "arrow-disabled",
+            currentIndex >= maxIndex
+         );
+      };
+
+      const updateLayout = () => {
+         if (isTouchLayout()) {
+            applyTouchLayout();
+         } else {
+            applyDesktopLayout();
+         }
+      };
+
+      const scrollRight = () => {
+         if (isTouchLayout()) {
+            return;
+         }
+         const maxIndex = getMaxIndex();
+         if (currentIndex < maxIndex) {
+            currentIndex += 1;
+            applyDesktopLayout();
+         }
+      };
+
+      const scrollLeft = () => {
+         if (isTouchLayout()) {
+            return;
+         }
+         if (currentIndex > 0) {
+            currentIndex -= 1;
+            applyDesktopLayout();
+         }
+      };
+
+      rightArrow.addEventListener("click", scrollRight);
+      leftArrow.addEventListener("click", scrollLeft);
+
+      let resizeFrame = null;
+      const handleResize = () => {
+         if (resizeFrame) {
+            cancelAnimationFrame(resizeFrame);
+         }
+         resizeFrame = requestAnimationFrame(() => {
+            currentIndex = 0;
+            updateLayout();
+            resizeFrame = null;
+         });
+      };
+
+      window.addEventListener("resize", handleResize);
+
+      updateLayout();
+   });
 });

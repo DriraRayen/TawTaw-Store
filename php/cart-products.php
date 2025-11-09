@@ -1,6 +1,9 @@
 <?php
 
-include 'connexion.php';
+require_once __DIR__ . '/cart-helpers.php';
+
+$cartItemCount = 0;
+$cartTotalAmount = 0.0;
 
 // Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -8,53 +11,35 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$user_id = $_SESSION['user_id'];
+[$cartItems, $cartSummary] = (function (int $userId) {
+    $items = fetchUserCartItems($userId);
+    $summary = summarizeCartItems($items);
+    return [$items, $summary];
+})((int) $_SESSION['user_id']);
 
-// Fetch the user's cart items
-$sql = "
-SELECT 
-    p.product_id,
-    pv.variation_id, -- Include the variation_id
-    p.name AS product_name,
-    p.company,
-    p.description,
-    pv.price,
-    pv.color,
-    pv.quantity AS stock_quantity,
-    ci.quantity AS cart_quantity,
-    pi.image_url
-FROM cart ci
-JOIN product_variation pv ON ci.variation_id = pv.variation_id
-JOIN products p ON pv.product_id = p.product_id
-LEFT JOIN product_images pi ON pv.variation_id = pi.variation_id
-WHERE ci.user_id = ?
-";
+$cartItemCount = $cartSummary['count'];
+$cartTotalAmount = $cartSummary['total'];
 
-$stmt = $conn->prepare($sql);
-$stmt->bind_param('i', $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
+if (!empty($cartItems)) {
+    foreach ($cartItems as $product) {
+        $isFavourite = (bool) $product['is_favourite'];
+        $variationId = (int) $product['variation_id'];
+        $unitPrice = (float) $product['price'];
+        $cartQuantity = (int) $product['cart_quantity'];
+        $stockQuantity = (int) $product['stock_quantity'];
 
-if ($result->num_rows > 0) {
-    while ($product = $result->fetch_assoc()) {
-        $colorAbbreviation = ucfirst(strtolower(substr($product['color'], 0, 3)));
-        $isFavourite = false;
-        if (isset($_SESSION['user_id'])) {
-            $user_id = $_SESSION['user_id'];
-            
-            $favSql = "SELECT * FROM favourates WHERE user_id = ? AND variation_id = ?";
-            $favStmt = $conn->prepare($favSql);
-            $favStmt->bind_param('ii', $user_id, $product['variation_id']);
-            $favStmt->execute();
-            $favResult = $favStmt->get_result();
-            $isFavourite =  $favResult->num_rows > 0;
-            $favStmt->close();
-        }
-        echo '<div class="container">
+        $checkboxAttributes = sprintf(
+            'class="select-pay" data-variation="%d" data-price="%s" data-quantity="%d" checked',
+            $variationId,
+            htmlspecialchars(number_format($unitPrice, 3, '.', '')),
+            $cartQuantity
+        );
+
+        echo '<div class="container cart-item" data-variation="' . htmlspecialchars($variationId) . '" data-price="' . htmlspecialchars(number_format($unitPrice, 3, '.', '')) . '" data-quantity="' . htmlspecialchars($cartQuantity) . '">
             <div class="product-image"><img src="../' . htmlspecialchars($product['image_url']) . '" alt="product-image"></div>
             <div class="cart-details">
                 <div class="button-holder">
-                    <h3>' . htmlspecialchars($product['product_name']) . ' (' . htmlspecialchars($colorAbbreviation) . ')</h3>
+                    <h3>' . htmlspecialchars($product['product_name']) . '</h3>
 <img 
                         class="heart" 
                         src="../Images/Icons/' . ($isFavourite ? 'heart_on.svg' : 'heart.svg') . '" 
@@ -64,7 +49,7 @@ if ($result->num_rows > 0) {
                 <div>
                     <p class="cart-details-details" id="stock">' . ($product['stock_quantity'] > 0 ? 'In Stock' : '<span style="color: red;">Out of Stock</span>') . '</p>
                     <p class="cart-details-details"><span>Color :</span> ' . htmlspecialchars($product['color']) . '</p>
-                    <p class="cart-details-details"><span>Quantity :</span> ' . htmlspecialchars($product['cart_quantity']) . '</p>
+                    <p class="cart-details-details"><span>Quantity :</span> <span class="cart-quantity-display" data-variation="' . htmlspecialchars($variationId) . '">' . htmlspecialchars($cartQuantity) . '</span></p>
                 </div>
                 <div class="button-holder">
                     <button class="btx-blue" id="product" onclick="window.location.href=\'../html/product.php?variation_id=' . htmlspecialchars($product['variation_id']) . '\'">More Details</button>
@@ -74,12 +59,12 @@ if ($result->num_rows > 0) {
             <div class="cart-options">
                 <div class="button-holder">
                     <h3>Price</h3>
-                    <input type="checkbox" class="select-pay">
+                    <input type="checkbox" ' . $checkboxAttributes . '>
                 </div>
-                <p><span>' . number_format($product['price'], 2) . ' TND</span></p>
+                <p><span>' . number_format($unitPrice, 3) . ' TND</span></p>
                 <div>
-                    <input type="number" value="' . htmlspecialchars($product['cart_quantity']) . '" min="1" max="' . htmlspecialchars($product['stock_quantity']) . '" onchange="updateCartQuantity(' . htmlspecialchars($product['product_id']) . ', this.value)">
-                    <button class="btx-red-reverse" id="buy">Buy</button>
+                    <input type="number" class="cart-quantity-input" data-variation="' . htmlspecialchars($variationId) . '" value="' . htmlspecialchars($cartQuantity) . '" min="1" max="' . htmlspecialchars($stockQuantity) . '">
+                    <button class="btx-red-reverse buy-now" type="button" data-variation="' . htmlspecialchars($variationId) . '">Buy</button>
                 </div>
             </div>
         </div>';
@@ -87,7 +72,4 @@ if ($result->num_rows > 0) {
 } else {
     echo '<p>Your cart is empty.</p>';
 }
-
-$stmt->close();
-$conn->close();
 ?>

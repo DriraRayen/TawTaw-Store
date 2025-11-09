@@ -5,32 +5,40 @@
   border: 2px solid #444;
   border-radius: 20px;
   width: 37em;
-  height: 27.5em;
   flex-direction: column;
-  justify-self: center;
   justify-content: center;
-  gap: 0.5em;
+  justify-self: center;
+  gap: 0.7em;
+  padding: 2em;
+  box-sizing: border-box;
 }
 .contact div {
   display: flex;
   gap: 1em;
+  width: 100%;
 }
 .contact input {
-  width: 20em;
+  flex: 1;
   height: 3em;
+  background-color: transparent;
+  border: 2px solid #444;
+  border-radius: 8px;
+  padding: 0 1em;
+  color: white;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 .contact textarea {
-  width: 93.4%;
-  height: 23em;
-}
-.contact input,
-.contact textarea {
+  width: 100%;
+  min-height: 18em;
   background-color: transparent;
   border: 2px solid #444;
   border-radius: 8px;
   padding: 1em;
   color: white;
+  resize: vertical;
   transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 .contact .button-holder {
   justify-content: center;
@@ -39,13 +47,54 @@
 .contact .btx-red {
   width: 15em;
   height: 3em;
-  border-radius: 15px;
 }
 /* input animations */
 .contact input:focus,
 .contact textarea:focus {
   border-color: #31c1e1;
-  outline: none; /* Optional: remove the default outline */
-  transition: border-color 0.3s ease-in-out; /* Optional: smooth transition */
+  outline: none;
+  transition: border-color 0.3s ease-in-out;
   box-shadow: 0 0 8px rgba(49, 193, 225, 0.5);
+}
+@media (max-width: 768px) {
+  .contact {
+    margin-top: 3.5em;
+    padding: 0 1.5em 3em;
+  }
+
+  .contact .container {
+    padding: 2em 1.5em;
+  }
+
+  .contact div {
+    flex-direction: column;
+  }
+
+  .contact input {
+    width: 100%;
+  }
+
+  .contact textarea {
+    height: 18em;
+  }
+
+  .contact .btx-red {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact {
+    padding: 0 1.2em 2.5em;
+  }
+
+  .contact .container {
+    gap: 0.75em;
+    padding: 1.6em 1.2em;
+  }
+
+  .contact input,
+  .contact textarea {
+    font-size: 0.95em;
+  }
 }

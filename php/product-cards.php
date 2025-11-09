@@ -1,67 +1,90 @@
 <?php
 include 'connexion.php';
 
-$category = isset($category) ? $category : null;
+$category = isset($category) ? trim($category) : null;
+if ($category === '') {
+    $category = null;
+}
 
 $sql = "
 SELECT 
     p.product_id,
+    pv.variation_id,
     p.name AS product_name,
     p.company,
     p.description,
-    pv.variation_id, 
     pv.price,
     pv.color,
-    pv.quantity, -- Include the quantity field
-    pi.image_url
+    pv.quantity,
+    COALESCE(pi.image_url, 'Images/Products/placeholder.png') AS image_url
 FROM products p
-JOIN product_variation pv ON p.product_id = pv.product_id
-LEFT JOIN product_images pi ON pv.variation_id = pi.variation_id
-WHERE pv.variation_id IN (
-    SELECT MIN(pv2.variation_id)
-    FROM product_variation pv2
-    WHERE pv2.product_id = p.product_id
-    GROUP BY pv2.color
-)";
+JOIN product_variation pv ON pv.variation_id = (
+    SELECT pv_inner.variation_id
+    FROM product_variation pv_inner
+    WHERE pv_inner.product_id = p.product_id
+    ORDER BY pv_inner.price ASC, pv_inner.variation_id ASC
+    LIMIT 1
+)
+LEFT JOIN (
+    SELECT variation_id, MIN(image_url) AS image_url
+    FROM product_images
+    GROUP BY variation_id
+) pi ON pi.variation_id = pv.variation_id
+WHERE 1 = 1";
 
 if ($category) {
-    $sql .= " AND p.category = '" . $conn->real_escape_string($category) . "'";
+    $sql .= " AND LOWER(p.category) = LOWER(?)";
 }
 
-$sql .= " LIMIT 6";
+$sql .= " ORDER BY p.name ASC LIMIT 6";
 
-$result = $conn->query($sql);
+$stmt = $conn->prepare($sql);
+$result = false;
 
-if ($result->num_rows > 0) {
+if ($stmt) {
+    if ($category) {
+        $stmt->bind_param('s', $category);
+    }
+    $stmt->execute();
+    $result = $stmt->get_result();
+}
+
+if ($result && $result->num_rows > 0) {
     while ($product = $result->fetch_assoc()) {
-        echo '<div class="product-card">
-        <div><img src="../' . htmlspecialchars($product['image_url']) . '" alt=""></div>
-        <div class="product-card-summary">
-            <h3>' . htmlspecialchars($product['company']) . ' || ' . htmlspecialchars($product['product_name']) . ' (' . strtoupper(substr(htmlspecialchars($product['color']), 0, 3)) . ')</h3>
-            <p>' . htmlspecialchars($product['description']) . '</p>
-            <div>';
-
-        if (!$category) {
-            echo '<p class="promo" style="color: red;">' . number_format($product['price'], 2) . ' TND</p>
-                <div class="button-holder">
-                    <p class="price">' . number_format($product['price'] * 0.9, 2) . ' TND</p>
-                    <button class="btx-add" onclick="addToCart(' . htmlspecialchars($product['variation_id']) . ')" ' . ($product['quantity'] > 0 ? '' : 'disabled') . '>Add to cart</button>
-                </div>
-            </div>
-        </div>
-        </div>';
+        $imagePath = isset($product['image_url']) ? trim($product['image_url']) : '';
+        if ($imagePath === '') {
+            $imageSrc = '../Images/Products/placeholder.png';
+        } elseif (preg_match('/^https?:\/\//i', $imagePath) || strpos($imagePath, '//') === 0) {
+            $imageSrc = $imagePath;
         } else {
-            echo '<div class="button-holder">
-                    <p class="price">' . number_format($product['price'], 2) . ' TND</p>
-                    <button class="btx-add" onclick="addToCart(' . htmlspecialchars($product['variation_id']) . ')" ' . ($product['quantity'] > 0 ? '' : 'disabled') . '>Add to cart</button>
-                </div>
+            $imageSrc = '../' . ltrim($imagePath, '/');
+        }
+
+        echo '<div class="product-card" onclick="window.location.href=\'product.php?variation_id=' . htmlspecialchars($product['variation_id']) . '\'" style="cursor: pointer;">
+        <div class="product-card-image">';
+
+        if (!empty($imageSrc)) {
+            echo '<img src="' . htmlspecialchars($imageSrc) . '" alt="">';
+        }
+
+        echo '</div>
+        <div class="product-card-summary">
+            <h3>' . htmlspecialchars($product['company']) . ' || ' . htmlspecialchars($product['product_name']) . '</h3>';
+
+        echo '<p>' . htmlspecialchars($product['description']) . '</p>
+            <div class="button-holder">
+                <p class="price">' . number_format($product['price'], 2) . ' TND</p>
+                <button class="btx-add" onclick="event.stopPropagation(); addToCart(' . htmlspecialchars($product['variation_id']) . ')" ' . ($product['quantity'] > 0 ? '' : 'disabled') . '>Add to cart</button>
             </div>
         </div>
         </div>';
-        }
     }
 } else {
     echo "No products found.";
+}
+
+if ($stmt) {
+    $stmt->close();
 }
 
 $conn->close();

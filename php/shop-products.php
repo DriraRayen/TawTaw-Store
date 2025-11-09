@@ -1,41 +1,75 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 include 'connexion.php';
 
-// Use the $category variable if it is set
-$category = isset($_GET['category']) ? $_GET['category'] : (isset($category) ? $category : null);
+// Resolve category filter preference
+$definedVars = get_defined_vars();
+$categoryFilter = null;
+$hasCategoryVar = array_key_exists('category', $definedVars);
 
-// Build the base SQL query
+if ($hasCategoryVar) {
+    $categoryFilter = $category;
+} elseif (isset($_GET['category'])) {
+    $categoryFilter = $_GET['category'];
+}
+
+if (is_string($categoryFilter)) {
+    $categoryFilter = trim($categoryFilter);
+}
+
+if ($categoryFilter === '' || $categoryFilter === null || $categoryFilter === false) {
+    $categoryFilter = null;
+}
+
+// Build the base SQL query to show a single representative variation per product
 $sql = "
 SELECT 
     p.product_id,
-    pv.variation_id, -- Include the variation_id
+    pv.variation_id,
     p.name AS product_name,
     p.company,
     p.description,
-    p.category, -- Include the category column
+    p.category,
     pv.price,
-    pv.color, -- Include the color column
-    pv.quantity, -- Include the quantity column
-    pi.image_url
+    pv.color,
+    pv.quantity,
+    COALESCE(pi.image_url, 'Images/Products/placeholder.png') AS image_url
 FROM products p
-JOIN product_variation pv ON p.product_id = pv.product_id
-LEFT JOIN product_images pi ON pv.variation_id = pi.variation_id
-WHERE pv.variation_id IN (
-    SELECT MIN(pv2.variation_id)
-    FROM product_variation pv2
-    WHERE pv2.product_id = p.product_id
-    GROUP BY pv2.color
-)";
-if ($category) {
-    $sql .= " AND p.category = '" . $conn->real_escape_string($category) . "'";
+JOIN product_variation pv ON pv.variation_id = (
+    SELECT pv_inner.variation_id
+    FROM product_variation pv_inner
+    WHERE pv_inner.product_id = p.product_id
+    ORDER BY pv_inner.price ASC, pv_inner.variation_id ASC
+    LIMIT 1
+)
+LEFT JOIN (
+    SELECT variation_id, MIN(image_url) AS image_url
+    FROM product_images
+    GROUP BY variation_id
+) pi ON pi.variation_id = pv.variation_id
+WHERE 1 = 1";
+
+if ($categoryFilter) {
+    $sql .= " AND LOWER(p.category) = LOWER(?)";
 }
 
-$result = $conn->query($sql);
+$sql .= " ORDER BY p.name ASC";
 
-if ($result->num_rows > 0) {
+if ($stmt = $conn->prepare($sql)) {
+    if ($categoryFilter) {
+        $stmt->bind_param('s', $categoryFilter);
+    }
+    $stmt->execute();
+    $result = $stmt->get_result();
+} else {
+    $result = false;
+}
+
+if ($result && $result->num_rows > 0) {
     while ($product = $result->fetch_assoc()) {
-
-        $colorAbbreviation = ucfirst(strtolower(substr($product['color'], 0, 3)));
 
         $isFavourite = false;
         if (isset($_SESSION['user_id'])) {
@@ -50,15 +84,18 @@ if ($result->num_rows > 0) {
         }
 
         echo '<div class="container"
-        data-category="' . htmlspecialchars($product['category']) . '"
-        data-company="' . htmlspecialchars($product['company']) . '"
-        data-price="' . htmlspecialchars($product['price']) . '"
-        data-stock="' . htmlspecialchars($product['quantity']) . '">
+    data-category="' . htmlspecialchars($product['category']) . '"
+    data-company="' . htmlspecialchars($product['company']) . '"
+    data-price="' . htmlspecialchars($product['price']) . '"
+    data-stock="' . htmlspecialchars($product['quantity']) . '"
+    data-name="' . htmlspecialchars($product['product_name']) . '"
+    data-description="' . htmlspecialchars($product['description']) . '"
+    data-product-id="' . htmlspecialchars($product['product_id']) . '">
        <div class="container" id="right-shop-details">
            <div class="product-image"><img src="../' . htmlspecialchars($product['image_url']) . '" alt="product-image"></div>
            <div class="middle-card">
                <div class="button-holder">
-                   <h3>' . htmlspecialchars($product['product_name']) . ' (' . htmlspecialchars(ucfirst(strtolower(substr($product['color'], 0, 3)))) . ')</h3>
+                   <h3>' . htmlspecialchars($product['product_name']) . '</h3>
                    <img 
                        class="heart" 
                        src="../Images/Icons/' . ($isFavourite ? 'heart_on.svg' : 'heart.svg') . '" 
@@ -92,7 +129,7 @@ if ($result->num_rows > 0) {
         echo '</div>
                <div>
                    <button class="btx-blue" onclick="addToCart(' . htmlspecialchars($product['variation_id']) . ')" ' . ($product['quantity'] > 0 ? '' : 'disabled') . '>Add to Cart</button>   
-                   <button class="btx-red-reverse" id="buy" ' . ($product['quantity'] > 0 ? '' : 'disabled') . '>Buy</button>
+                   <button class="btx-red-reverse quick-buy" data-variation="' . htmlspecialchars($product['variation_id']) . '" ' . ($product['quantity'] > 0 ? '' : 'disabled') . '>Buy</button>
                </div>
            </div>
        </div>
@@ -103,5 +140,6 @@ if ($result->num_rows > 0) {
     echo '<div class="container"><p>No products found.</p></div>';
 }
 
+$stmt && $stmt->close();
 $conn->close();
 ?>
