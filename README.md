@@ -22,6 +22,7 @@
 -   Checkout process completion
 -   Product reviews and ratings
 -   Admin dashboard
+-   Full responsive design
 
 ---
 
