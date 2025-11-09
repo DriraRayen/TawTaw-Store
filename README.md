@@ -8,20 +8,20 @@
 
 ## 🚀 Features
 
--  📦 **Product Catalog**: Browse products with images and detailed information
--  🔍 **Advanced Filtering**: Filter by brand, company, price, and more
--  🛍️ **Shopping Cart**: Add items to cart with quantity management
--  ❤️ **Favorites**: Save favorite products for later
--  🎠 **Product Carousel**: Interactive product showcase
--  👤 **User Authentication**: Secure login and signup system
--  💳 **Payment Integration**: Payment processing page (in development)
--  📧 **Contact Form**: Get in touch for support
+-   **Product Catalog**: Browse products with images and detailed information
+-   **Advanced Filtering**: Filter by brand, company, price, and more
+-   **Shopping Cart**: Add items to cart with quantity management
+-   **Favorites**: Save favorite products for later
+-   **Product Carousel**: Interactive product showcase
+-   **User Authentication**: Secure login and signup system
+-   **Payment Integration**: Payment processing page (in development)
+-   **Contact Form**: Get in touch for support
 
 ### 🔜 Upcoming Features
 
--  ✅ Checkout process completion
--  ⭐ Product reviews and ratings
--  📊 Admin dashboard
+-   Checkout process completion
+-   Product reviews and ratings
+-   Admin dashboard
 
 ---
 
